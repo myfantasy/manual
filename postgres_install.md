@@ -15,67 +15,67 @@ https://pgtune.leopard.in.ua/#/
 ### prepare postgres
 
 #### prepare folder for install postgres (optional)
-mkdir /data
-mkdir /data/postgres
-cd /data/postgres
-mkdir pg
+mkdir /data  
+mkdir /data/postgres  
+cd /data/postgres  
+mkdir pg  
 
 #### Copy source
--- git clone source
-git clone git://git.postgresql.org/git/postgresql.git
+-- git clone source  
+git clone git://git.postgresql.org/git/postgresql.git  
 
 #### change directory
-cd postgresql
+cd postgresql  
 
 #### Use Tag
---git branch new_branch tag
-git branch REL_11_1 REL_11_1
+--git branch new_branch tag  
+git branch REL_11_1 REL_11_1  
 
 #### install dependencies
-sudo apt install gcc make flex bison libreadline-dev zlib1g-dev libxml2-dev libsystemd-dev
+sudo apt install gcc make flex bison libreadline-dev zlib1g-dev libxml2-dev libsystemd-dev  
 
 
 #### do config
-./configure --help
+./configure --help  
 
-for example from file
-touch conf.sh
-nano conf.sh
+for example from file  
+touch conf.sh  
+nano conf.sh  
 
 ```
 ./configure --prefix=/data/postgres/pg \
 --with-systemd
 ```
 
-chmod +rwx conf.sh
-./conf.sh
+chmod +rwx conf.sh  
+./conf.sh  
 
-or simple run
+or simple run  
 
 ```
 ./configure --prefix=/data/postgres/pg --with-systemd
 ```
 
 #### make and install postgres
-make
-make install
+make  
+make install  
 
 ### create database
-useradd postgres
-passwd postgres
-mkdir /data/postgres/pg/data
-chown -R postgres. /data/postgres/pg/data
-echo 'export PATH=$PATH:/data/postgres/pg/bin' > /etc/profile.d/postgres.sh
+useradd postgres  
+passwd postgres  
+mkdir /data/postgres/pg/data  
+chown -R postgres. /data/postgres/pg/data  
+echo 'export PATH=$PATH:/data/postgres/pg/bin' > /etc/profile.d/postgres.sh  
 
-su postgres
-/data/postgres/pg/bin/initdb -D /data/postgres/pg/data/ -U postgres -W
+su postgres  
+/data/postgres/pg/bin/initdb -D /data/postgres/pg/data/ -U postgres -W  
 
 ### config system.d
 #### create service file
-cd /etc/systemd/system
+cd /etc/systemd/system  
 
-touch postgres.service
-nano postgres.service
+touch postgres.service  
+nano postgres.service  
 
 ```
 [Unit]
@@ -97,53 +97,52 @@ RestartSec=3s
 WantedBy=multi-user.target
 ```
 #### enable service
-systemctl enable postgres
+systemctl enable postgres  
 
 #### start service
-systemctl start postgres
+systemctl start postgres  
 
 ### view logs
-journalctl --since='5 minutes ago' -u postgres
+journalctl --since='5 minutes ago' -u postgres  
 
 ## Create Deb Package
 ### install fpm
-https://fpm.readthedocs.io/en/latest/installing.html
+https://fpm.readthedocs.io/en/latest/installing.html  
 
-sudo apt install ruby ruby-dev rubygems build-essential
-
-sudo gem install --no-ri --no-rdoc fpm
+sudo apt install ruby ruby-dev rubygems build-essential  
+sudo gem install --no-ri --no-rdoc fpm  
 
 
 ### prepare postgres
 #### Copy source
--- git clone source
-git clone git://git.postgresql.org/git/postgresql.git
+-- git clone source  
+git clone git://git.postgresql.org/git/postgresql.git  
 
 #### change directory
-cd postgresql
+cd postgresql  
 
 #### Use Tag
---git branch new_branch tag
-git branch REL_11_1 REL_11_1
+--git branch new_branch tag  
+git branch REL_11_1 REL_11_1  
 
 #### install dependencies
-sudo apt install gcc make flex bison libreadline-dev zlib1g-dev libxml2-dev libsystemd-dev
+sudo apt install gcc make flex bison libreadline-dev zlib1g-dev libxml2-dev libsystemd-dev  
 
 #### do config
--- ./configure 
-./configure --with-gssapi --with-pam --with-ldap --with-openssl --with-selinux --with-libxml --with-libxslt --with-systemd CFLAGS="-O2 -fno-omit-frame-pointer" --prefix=/opt/postgresql/11.1
+-- ./configure  
+./configure --with-gssapi --with-pam --with-ldap --with-openssl --with-selinux --with-libxml --with-libxslt --with-systemd CFLAGS="-O2 -fno-omit-frame-pointer" --prefix=/opt/postgresql/11.1  
 
 if some errors you can search libs  
 apt-cache search libselinux | less  
 sudo apt install libselinux1-dev  
 
 #### make postgres
-make
+make  
 
 #### install into temp directory
-export DESTDIR="/tmp/install_dir" && make install
+export DESTDIR="/tmp/install_dir" && make install  
 
 ### create Deb package
 
-fpm -s dir -t deb -n postgresql-mf -v 11.1 -C /tmp/install_dir -p ~/Documents/temp/postgres-mf-111.deb -m "abc@abc.abc" -d 'libc6' -d 'libpq5' -d 'libsystemd0' -d 'libxml2' -d 'zlib1g' -d 'sysstat' -d 'libedit2' --deb-no-default-config-files --description="postgres 11.1 package mf_build" --vendor="mf_team"
+fpm -s dir -t deb -n postgresql-mf -v 11.1 -C /tmp/install_dir -p ~/Documents/temp/postgres-mf-111.deb -m "abc@abc.abc" -d 'libc6' -d 'libpq5' -d 'libsystemd0' -d 'libxml2' -d 'zlib1g' -d 'sysstat' -d 'libedit2' --deb-no-default-config-files --description="postgres 11.1 package mf_build" --vendor="mf_team"  
 
